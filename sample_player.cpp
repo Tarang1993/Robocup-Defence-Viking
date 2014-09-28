@@ -77,6 +77,7 @@
 #include <rcsc/player/audio_sensor.h>
 #include <rcsc/player/freeform_parser.h>
 #include "bhv_chain_action.h"
+#include "tackle_generator.h"
 #include <rcsc/action/body_advance_ball.h>
 #include <rcsc/action/body_dribble.h>
 #include <rcsc/action/body_hold_ball.h>
@@ -98,7 +99,8 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
-#include <vector> 
+#include <vector>
+#include <rcsc/action/body_clear_ball.h> 
 
 using namespace rcsc;
 
@@ -714,15 +716,16 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
         //Uncomment this for defense.
         //If I can kick the ball, but opponent has it. Common ball.
         if (kickable && Opponenthasball){
-            if ( Bhv_ChainAction().execute( agent ) )
+            /*if ( Bhv_ChainAction().execute( agent ) )
             {
                 dlog.addText( Logger::TEAM,
                       __FILE__": (execute) do chain action" );
             agent->debugClient().addMessage( "ChainAction" );
             return true;
-            }
+            }*/
 
-            Bhv_BasicOffensiveKick().execute( agent );
+            //Bhv_BasicOffensiveKick().execute( agent );
+            clearBall(agent);
             return true;
 
             }
@@ -730,7 +733,8 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
         // I don't have the ball, opponent has it, off the ball movement while defending.
         //falling back etc.     
         else if (!kickable && Opponenthasball){
-            Bhv_BasicMove().execute(agent);
+            //Bhv_BasicMove().execute(agent);
+            chaseBall(agent);
         }
         return true;
     };
@@ -741,6 +745,36 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
 }
 
 /*-------------------------------------------------------------------*/
+void
+SamplePlayer::chaseBall( PlayerAgent * agent)
+{    
+    const WorldModel & wm = agent->world();
+    Vector2D BallPos = agent->world().ball().pos();
+    double dist_thr = wm.ball().distFromSelf()*0.1;
+    if ( dist_thr < 1.0 ) dist_thr = 1.0;
+    double test = ServerParam::MAX_DASH_POWER;
+    const double dash_power = test;
+    if(!Body_GoToPoint2010(BallPos,dist_thr,dash_power).execute(agent)){
+        Body_TurnToBall().execute(agent);
+    }
+    agent->setNeckAction( new Neck_TurnToPoint( BallPos ) );
+
+}
+
+void
+SamplePlayer::clearBall( PlayerAgent * agent)
+{
+    const WorldModel & wm = agent->world();
+    Vector2D BallPos = wm.ball().pos();
+    if(BallPos.x<0){
+        std::cout << "Clearing The Ball" << "\n";
+        Body_ClearBall2009().execute(agent);
+    }else{
+        std::cout << "Ball in Opposite Side" << "\n";
+        BasicMove(agent);
+    }
+    agent->setNeckAction(new Neck_TurnToBall());
+}
 /*!
 
 */

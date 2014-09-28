@@ -220,6 +220,8 @@ private:
     double getDashPower( const rcsc::PlayerAgent * agent );
     void doKick( rcsc::PlayerAgent * agent );
     void doMove( rcsc::PlayerAgent * agent );
+    void chaseBall( rcsc::PlayerAgent * agent );
+    void clearBall( rcsc::PlayerAgent * agent) ;
     bool doPreprocess();
     bool doShoot();
     bool doForceKick();
