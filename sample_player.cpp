@@ -734,7 +734,18 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
         //falling back etc.     
         else if (!kickable && Opponenthasball){
             //Bhv_BasicMove().execute(agent);
-            chaseBall(agent);
+            if (agent->world().self().unum() == ClosestPlayerToBall(agent)) {
+                chaseBall(agent);
+            } else {
+                double ballx = agent->world().ball().pos().x;
+                int danger = getDangerZone(ballx);
+                Vector2D target_pos(ballx - 4, agent->world().self().pos().y);
+                double dist_thr = agent->world().ball().distFromSelf()*0.1;
+                double dash_power = ServerParam::MAX_DASH_POWER;
+                if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                    Body_TurnToBall().execute(agent);
+                agent->setNeckAction(new Neck_TurnToBall());
+            }
         }
         return true;
     };
@@ -775,6 +786,55 @@ SamplePlayer::clearBall( PlayerAgent * agent)
     }
     agent->setNeckAction(new Neck_TurnToBall());
 }
+
+int
+SamplePlayer::getDangerZone(double ballxPosition) {
+    if (ballxPosition > 0)
+        return 0;
+    else if (ballxPosition>-20 && ballxPosition <= 0)
+        return 1;
+    else if (ballxPosition>-30 && ballxPosition <= -20)
+        return 2;
+    else if (ballxPosition>-40 && ballxPosition <= -30)
+        return 3;
+    else if (ballxPosition <= -40)
+        return 4;
+    else
+        return 4;
+}
+
+void
+SamplePlayer::arrangePlayers(int dangerZone, PlayerAgent* agent) {
+    int numberOfPlayers = dangerZone * 2;
+
+    const WorldModel & wm = agent->world();
+
+    double startX = wm.ball().pos().x;
+
+    double startY = -25;
+
+    PlayerPtrCont::const_iterator t = wm.teammatesFromBall().begin();
+
+    int player = 0;
+
+    while (player < numberOfPlayers) {
+        std::cout << "In While Loop ************" << "\n";
+        Vector2D target_pos(startX, startY);
+        std::cout << "Target Position x,y" << target_pos.x << "\n";
+        //Vector2D source = (*t) -> pos();
+        double dist_thr = wm.ball().distFromSelf()*0.1;
+        double dash_power = ServerParam::MAX_DASH_POWER;
+
+        //PlayerAgent* agent1 = agent->world().ourPlayer((*t)->unum());
+        std::cout << "GOing to target********************" << "\n";
+        //  Body_GoToPoint2010(target_pos,dist_thr,dash_power).execute(agent1);    
+        startY -= (double) 50 / numberOfPlayers;
+        t++;
+        player++;
+
+    }
+}
+
 /*!
 
 */

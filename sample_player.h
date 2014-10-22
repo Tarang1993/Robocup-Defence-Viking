@@ -222,6 +222,8 @@ private:
     void doMove( rcsc::PlayerAgent * agent );
     void chaseBall( rcsc::PlayerAgent * agent );
     void clearBall( rcsc::PlayerAgent * agent) ;
+    int getDangerZone(double ballxPosition);
+    void arrangePlayers(int dangerZone, rcsc::PlayerAgent* agent);
     bool doPreprocess();
     bool doShoot();
     bool doForceKick();
