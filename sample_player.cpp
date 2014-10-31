@@ -741,6 +741,7 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
                 int danger = getDangerZone(ballx);
                 Vector2D target_pos(std::max(ballx - 4,(double)-51), agent->world().self().pos().y);
                 double dist_thr = agent->world().ball().distFromSelf()*0.1;
+                if ( dist_thr < 1.0 ) dist_thr = 1.0;
                 double dash_power = ServerParam::MAX_DASH_POWER;
 
                 if(danger == 0)
@@ -749,6 +750,8 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
                         agent->world().self().unum() == 8 || agent->world().self().unum() == 7)
                     {
                         if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+                    }else{
                         Body_TurnToBall().execute(agent);
                     }
                 }
@@ -762,6 +765,8 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
                     {
                         if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
                         Body_TurnToBall().execute(agent);
+                    }else{
+                        Body_TurnToBall().execute(agent);
                     }
                 }
                 if(danger == 2)
@@ -771,6 +776,15 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
                          agent->world().self().unum() == 6 || agent->world().self().unum() == 5)
                     {
                         if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+                    }else if(agent->world().self().unum() == 2 || agent->world().self().unum()==3){
+                        if(ballx-agent->world().self().pos().x<0){
+                            if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                                    Body_TurnToBall().execute(agent);
+                        }else{
+                         Body_TurnToBall().execute(agent);
+                        }
+                    }else{
                         Body_TurnToBall().execute(agent);
                     }
                 }
@@ -783,6 +797,8 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
                     {
                         if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
                         Body_TurnToBall().execute(agent);
+                    }else{
+                        Body_TurnToBall().execute(agent);
                     }
                 }
 
@@ -793,9 +809,6 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
                         Body_TurnToBall().execute(agent);
                     
                 }
-                
-                
-                
                 agent->setNeckAction(new Neck_TurnToBall());
             }
         }
