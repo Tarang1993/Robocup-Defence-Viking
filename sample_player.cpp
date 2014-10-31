@@ -739,11 +739,63 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
             } else {
                 double ballx = agent->world().ball().pos().x;
                 int danger = getDangerZone(ballx);
-                Vector2D target_pos(ballx - 4, agent->world().self().pos().y);
+                Vector2D target_pos(std::max(ballx - 4,(double)-51), agent->world().self().pos().y);
                 double dist_thr = agent->world().ball().distFromSelf()*0.1;
                 double dash_power = ServerParam::MAX_DASH_POWER;
-                if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
-                    Body_TurnToBall().execute(agent);
+
+                if(danger == 0)
+                {
+                    if(agent->world().self().unum() == 10 || agent->world().self().unum() == 11 ||
+                        agent->world().self().unum() == 8 || agent->world().self().unum() == 7)
+                    {
+                        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+                    }
+                }
+                if(danger == 1)
+                {
+                    if(agent->world().self().unum() == 10 || agent->world().self().unum() == 11 ||
+                        agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
+                         agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
+                        agent->world().self().unum() == 6 || agent->world().self().unum() == 5     
+                         )
+                    {
+                        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+                    }
+                }
+                if(danger == 2)
+                {
+                    if( agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
+                        agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
+                         agent->world().self().unum() == 6 || agent->world().self().unum() == 5)
+                    {
+                        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+                    }
+                }
+                if(danger == 3)
+                {
+                    if( agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
+                        agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
+                        agent->world().self().unum() == 5 || agent->world().self().unum() == 6 ||
+                        agent->world().self().unum() == 3 || agent->world().self().unum() == 2  )
+                    {
+                        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+                    }
+                }
+
+                if(danger == 4)
+                {
+                   
+                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+                    
+                }
+                
+                
+                
                 agent->setNeckAction(new Neck_TurnToBall());
             }
         }
