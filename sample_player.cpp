@@ -54,7 +54,7 @@
 #include "bhv_strict_check_shoot.h"
 
 #include "view_tactical.h"
-
+#include <map>
 #include "intention_receive.h"
 
 #include <rcsc/action/basic_actions.h>
@@ -103,7 +103,7 @@
 #include <rcsc/action/body_clear_ball.h> 
 
 using namespace rcsc;
-
+using namespace std;
 /*-------------------------------------------------------------------*/
 /*!
 
@@ -734,9 +734,18 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
         //falling back etc.     
         else if (!kickable && Opponenthasball){
             //Bhv_BasicMove().execute(agent);
+             PlayerAgent * closestAgent = NULL;
             if (agent->world().self().unum() == ClosestPlayerToBall(agent)) {
                 chaseBall(agent);
+                closestAgent = agent;
             } else {
+            	 // = agent->world();
+            	 // = wm.teammatesFromBall().begin();
+            	PlayerPtrCont::const_iterator t;
+            	if(closestAgent!=NULL){
+            		const WorldModel & wm = closestAgent->world();
+            		 t = wm.teammatesFromBall().begin();
+            	}
                 double ballx = agent->world().ball().pos().x;
                 int danger = getDangerZone(ballx);
                 Vector2D target_pos(std::max(ballx - 4,(double)-51), agent->world().self().pos().y);
@@ -746,6 +755,28 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
 
                 if(danger == 0)
                 {
+                	if(closestAgent != NULL){
+                	int player = 0;
+                	map<int, int> markPlayer;
+                	while(player != 4)
+                	{
+                		markPlayer[(*t) -> unum()] = 1;
+                		t++;
+                		player++;
+                	}
+
+                	if(markPlayer[agent->world().self().unum()] == 1)
+                	{
+                		if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+                    	
+                    	else{
+                        	Body_TurnToBall().execute(agent);
+                    	}
+                	}
+                	}
+                	else{
                     if(agent->world().self().unum() == 10 || agent->world().self().unum() == 11 ||
                         agent->world().self().unum() == 8 || agent->world().self().unum() == 7)
                     {
@@ -753,10 +784,33 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
                         Body_TurnToBall().execute(agent);
                     }else{
                         Body_TurnToBall().execute(agent);
-                    }
+                    } 
+                }
                 }
                 if(danger == 1)
                 {
+                	if(closestAgent != NULL){
+                	int player = 0;
+                	map<int, int> markPlayer;
+                	while(player != 7)
+                	{
+                		markPlayer[(*t) -> unum()] = 1;
+                		t++;
+                		player++;
+                	}
+
+                	if(markPlayer[agent->world().self().unum()] == 1)
+                	{
+                		if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+                    	
+                    	else{
+                        	Body_TurnToBall().execute(agent);
+                    	}
+                	}
+                }
+                	else{
                     if(agent->world().self().unum() == 10 || agent->world().self().unum() == 11 ||
                         agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
                          agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
@@ -767,10 +821,33 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
                         Body_TurnToBall().execute(agent);
                     }else{
                         Body_TurnToBall().execute(agent);
-                    }
+                    } }
                 }
                 if(danger == 2)
                 {
+
+                	if(closestAgent != NULL){
+                	int player = 0;
+                	map<int, int> markPlayer;
+                	while(player != 8)
+                	{
+                		markPlayer[(*t) -> unum()] = 1;
+                		t++;
+                		player++;
+                	}
+
+                	if(markPlayer[agent->world().self().unum()] == 1)
+                	{
+                		if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        	Body_TurnToBall().execute(agent);
+                    	
+                    	else{
+                        	Body_TurnToBall().execute(agent);
+                    	}
+                	}
+                }
+                    else
+                    	{
                     if( agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
                         agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
                          agent->world().self().unum() == 6 || agent->world().self().unum() == 5)
@@ -786,10 +863,32 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
                         }
                     }else{
                         Body_TurnToBall().execute(agent);
-                    }
+                    }}
                 }
                 if(danger == 3)
                 {
+                	if(closestAgent != NULL){
+                	int player = 0;
+                	map<int, int> markPlayer;
+                	while(player != 8)
+                	{
+                		markPlayer[(*t) -> unum()] = 1;
+                		t++;
+                		player++;
+                	}
+                
+
+                	if(markPlayer[agent->world().self().unum()] == 1)
+                	{
+                		if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        	Body_TurnToBall().execute(agent);
+                    	
+                    	else{
+                        	Body_TurnToBall().execute(agent);
+                    	}
+                	}
+                }
+                else{
                     if( agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
                         agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
                         agent->world().self().unum() == 5 || agent->world().self().unum() == 6 ||
@@ -800,6 +899,7 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
                     }else{
                         Body_TurnToBall().execute(agent);
                     }
+                	}
                 }
 
                 if(danger == 4)
@@ -813,7 +913,7 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
             }
         }
         return true;
-    };
+    }
 
     //DEFENSE ENDS HERE.
 
