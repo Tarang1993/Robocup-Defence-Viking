@@ -215,6 +215,9 @@ public:
     bool
     executeDefense( rcsc::PlayerAgent * agent );
 
+    void
+    TriangleStrategy ( rcsc::PlayerAgent * agent );
+
 
 private:
     double getDashPower( const rcsc::PlayerAgent * agent );

@@ -734,6 +734,30 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
         //falling back etc.     
         else if (!kickable && Opponenthasball){
             //Bhv_BasicMove().execute(agent);
+             if ( Bhv_BasicTackle( 0.4, 80.0 ).execute( agent ) )
+        	{
+            	return true;
+        	}
+        
+            const WorldModel & wm = agent->world();
+    /*--------------------------------------------------------*/
+    // chase ball
+    		const int self_min = wm.interceptTable()->selfReachCycle();
+    		const int mate_min = wm.interceptTable()->teammateReachCycle();
+    		const int opp_min = wm.interceptTable()->opponentReachCycle();
+
+    		if ( ! wm.existKickableTeammate()
+         		&& ( self_min <= 3
+              		|| ( self_min <= mate_min
+                   	&& self_min < opp_min + 3 )
+               		)
+          	   )
+    		{
+        		Body_Intercept().execute( agent );
+        		agent->setNeckAction( new Neck_OffensiveInterceptNeck() );
+
+        		return true;
+    		}
              PlayerAgent * closestAgent = NULL;
             if (agent->world().self().unum() == ClosestPlayerToBall(agent)) {
                 chaseBall(agent);
@@ -920,6 +944,100 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
     return true;
 }
 
+void 
+SamplePlayer::TriangleStrategy( PlayerAgent * agent )
+{
+	double dist_thr = agent->world().ball().distFromSelf()*0.1;
+                if ( dist_thr < 1.0 ) dist_thr = 1.0;
+     double dash_power = ServerParam::MAX_DASH_POWER;
+                
+    double y1,y2,x1,x2;
+    if(agent->world().self().unum()==10 || agent->world().self().unum()==11){
+        chaseBall(agent);
+    }else{
+        if(agent->world().self().unum()==9){
+            x1=-46;
+            y1 = (-1.5*x1)-63; 
+        Vector2D target_pos(-46,6);
+        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+        }else if(agent->world().self().unum()==8){
+            x2 = -46;
+            y2 = (1.5*x2)+63;
+            Vector2D target_pos(-46,-6);
+            double* distance;
+            Vector2D newtarget_pos = agent->world().getOpponentNearestTo(target_pos,10,distance)->pos();
+            Vector2D test(newtarget_pos.x-1,newtarget_pos.y-1);
+            if(test.x<=-45 && test.y<9 && test.y>-9){
+        if (!Body_GoToPoint2010(test, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+            }else{
+            if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+        }
+        }else if(agent->world().self().unum()==7){
+            x1=-44;
+            y1 = (-1.5*x1)-63; 
+        Vector2D target_pos(-44,3);
+        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+        }else if(agent->world().self().unum()==6){
+            x2 = -44;
+            y2 = (1.5*x2)+63;
+            Vector2D target_pos(-44,-3);
+        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+        }else if(agent->world().self().unum()==5){
+            x1=-42;
+            y1 = (-1.5*x1)-63; 
+        Vector2D target_pos(x1,y1);
+        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+        }else if(agent->world().self().unum()==4){
+            x2 = -42;
+            y2 = (1.5*x2)+63;
+            Vector2D target_pos(x2,y2);
+        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+        }else if(agent->world().self().unum()==3){
+            x2 = -42;
+            y2 = (1.5*x2)+63;
+            Vector2D target_pos(-49,-8);
+            std::cout<<"Agent 3 Role:"<<agent->world().self().playerType().id()<<"\n";
+        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+        }else if(agent->world().self().unum()==2){
+            x2 = -42;
+            y2 = (1.5*x2)+63;
+            Vector2D target_pos(-49,8);
+            std::cout<<"Agent 2 Role:"<<agent->world().self().playerType().id()<<"\n";
+            double* distance;
+            Vector2D newtarget_pos = agent->world().getOpponentNearestTo(target_pos,10,distance)->pos();
+            Vector2D test(newtarget_pos.x-1,newtarget_pos.y+1);
+            if(test.x<=-45 && test.y<9 && test.y>-9){
+        if (!Body_GoToPoint2010(test, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+            }else{
+            if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
+                        	Body_TurnToBall().execute(agent);
+                		}
+        }
+        }
+        else{
+            Body_TurnToBall().execute(agent);
+        }
+                        agent->setNeckAction(new Neck_TurnToBall());
+    }
+}
 /*-------------------------------------------------------------------*/
 void
 SamplePlayer::chaseBall( PlayerAgent * agent)
