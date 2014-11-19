@@ -104,6 +104,10 @@
 
 using namespace rcsc;
 using namespace std;
+
+std::vector<bool> downSideTriangle(3,false);
+std::vector<bool> upSideTriangle(3,false);
+
 /*-------------------------------------------------------------------*/
 /*!
 
@@ -726,6 +730,8 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
 
             //Bhv_BasicOffensiveKick().execute( agent );
             clearBall(agent);
+            upSideTriangle.clear();
+            downSideTriangle.clear();
             return true;
 
             }
@@ -735,206 +741,36 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
         else if (!kickable && Opponenthasball){
             //Bhv_BasicMove().execute(agent);
              if ( Bhv_BasicTackle( 0.4, 80.0 ).execute( agent ) )
-        	{
-            	return true;
-        	}
-        
+               {
+                return true;
+               }
+
             const WorldModel & wm = agent->world();
-    /*--------------------------------------------------------*/
-    // chase ball
-    		const int self_min = wm.interceptTable()->selfReachCycle();
-    		const int mate_min = wm.interceptTable()->teammateReachCycle();
-    		const int opp_min = wm.interceptTable()->opponentReachCycle();
+            /*--------------------------------------------------------*/
+            // chase ball
+            const int self_min = wm.interceptTable()->selfReachCycle();
+            const int mate_min = wm.interceptTable()->teammateReachCycle();
+            const int opp_min = wm.interceptTable()->opponentReachCycle();
 
-    		if ( ! wm.existKickableTeammate()
-         		&& ( self_min <= 3
-              		|| ( self_min <= mate_min
-                   	&& self_min < opp_min + 3 )
-               		)
-          	   )
-    		{
-        		Body_Intercept().execute( agent );
-        		agent->setNeckAction( new Neck_OffensiveInterceptNeck() );
-
-        		return true;
-    		}
-             PlayerAgent * closestAgent = NULL;
-            if (agent->world().self().unum() == ClosestPlayerToBall(agent)) {
-                chaseBall(agent);
-                closestAgent = agent;
-            } else {
-            	 // = agent->world();
-            	 // = wm.teammatesFromBall().begin();
-            	PlayerPtrCont::const_iterator t;
-            	if(closestAgent!=NULL){
-            		const WorldModel & wm = closestAgent->world();
-            		 t = wm.teammatesFromBall().begin();
-            	}
-                double ballx = agent->world().ball().pos().x;
-                int danger = getDangerZone(ballx);
-                Vector2D target_pos(std::max(ballx - 4,(double)-51), agent->world().self().pos().y);
-                double dist_thr = agent->world().ball().distFromSelf()*0.1;
-                if ( dist_thr < 1.0 ) dist_thr = 1.0;
-                double dash_power = ServerParam::MAX_DASH_POWER;
-
-                if(danger == 0)
-                {
-                	if(closestAgent != NULL){
-                	int player = 0;
-                	map<int, int> markPlayer;
-                	while(player != 4)
-                	{
-                		markPlayer[(*t) -> unum()] = 1;
-                		t++;
-                		player++;
-                	}
-
-                	if(markPlayer[agent->world().self().unum()] == 1)
-                	{
-                		if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-                    	
-                    	else{
-                        	Body_TurnToBall().execute(agent);
-                    	}
-                	}
-                	}
-                	else{
-                    if(agent->world().self().unum() == 10 || agent->world().self().unum() == 11 ||
-                        agent->world().self().unum() == 8 || agent->world().self().unum() == 7)
-                    {
-                        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
-                        Body_TurnToBall().execute(agent);
-                    }else{
-                        Body_TurnToBall().execute(agent);
-                    } 
-                }
-                }
-                if(danger == 1)
-                {
-                	if(closestAgent != NULL){
-                	int player = 0;
-                	map<int, int> markPlayer;
-                	while(player != 7)
-                	{
-                		markPlayer[(*t) -> unum()] = 1;
-                		t++;
-                		player++;
-                	}
-
-                	if(markPlayer[agent->world().self().unum()] == 1)
-                	{
-                		if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-                    	
-                    	else{
-                        	Body_TurnToBall().execute(agent);
-                    	}
-                	}
-                }
-                	else{
-                    if(agent->world().self().unum() == 10 || agent->world().self().unum() == 11 ||
-                        agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
-                         agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
-                        agent->world().self().unum() == 6 || agent->world().self().unum() == 5     
-                         )
-                    {
-                        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
-                        Body_TurnToBall().execute(agent);
-                    }else{
-                        Body_TurnToBall().execute(agent);
-                    } }
-                }
-                if(danger == 2)
-                {
-
-                	if(closestAgent != NULL){
-                	int player = 0;
-                	map<int, int> markPlayer;
-                	while(player != 8)
-                	{
-                		markPlayer[(*t) -> unum()] = 1;
-                		t++;
-                		player++;
-                	}
-
-                	if(markPlayer[agent->world().self().unum()] == 1)
-                	{
-                		if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
-                        	Body_TurnToBall().execute(agent);
-                    	
-                    	else{
-                        	Body_TurnToBall().execute(agent);
-                    	}
-                	}
-                }
-                    else
-                    	{
-                    if( agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
-                        agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
-                         agent->world().self().unum() == 6 || agent->world().self().unum() == 5)
-                    {
-                        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
-                        Body_TurnToBall().execute(agent);
-                    }else if(agent->world().self().unum() == 2 || agent->world().self().unum()==3){
-                        if(ballx-agent->world().self().pos().x<0){
-                            if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
-                                    Body_TurnToBall().execute(agent);
-                        }else{
-                         Body_TurnToBall().execute(agent);
-                        }
-                    }else{
-                        Body_TurnToBall().execute(agent);
-                    }}
-                }
-                if(danger == 3)
-                {
-                	if(closestAgent != NULL){
-                	int player = 0;
-                	map<int, int> markPlayer;
-                	while(player != 8)
-                	{
-                		markPlayer[(*t) -> unum()] = 1;
-                		t++;
-                		player++;
-                	}
-                
-
-                	if(markPlayer[agent->world().self().unum()] == 1)
-                	{
-                		if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
-                        	Body_TurnToBall().execute(agent);
-                    	
-                    	else{
-                        	Body_TurnToBall().execute(agent);
-                    	}
-                	}
-                }
-                else{
-                    if( agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
-                        agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
-                        agent->world().self().unum() == 5 || agent->world().self().unum() == 6 ||
-                        agent->world().self().unum() == 3 || agent->world().self().unum() == 2  )
-                    {
-                        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
-                        Body_TurnToBall().execute(agent);
-                    }else{
-                        Body_TurnToBall().execute(agent);
-                    }
-                	}
-                }
-
-                if(danger == 4)
-                {
-                   
-                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
-                        Body_TurnToBall().execute(agent);
-                    
-                }
-                agent->setNeckAction(new Neck_TurnToBall());
+            if (!wm.existKickableTeammate()
+                    && (self_min <= 3
+                    || (self_min <= mate_min
+                    && self_min < opp_min + 3)
+                    )
+                    ) {
+                if (!Body_Intercept().execute(agent))
+                    Body_TurnToBall().execute(agent);
+                agent->setNeckAction(new Neck_OffensiveInterceptNeck());
+                return true;
             }
+            if (wm.gameMode().scoreLeft() <= wm.gameMode().scoreRight()) {
+                LineFallBackStrategy(agent);
+
+            } else {
+                //newTriangleStrategy(agent);
+                TriangleStrategy(agent);
+            }
+
         }
         return true;
     }
@@ -944,98 +780,381 @@ SamplePlayer::executeSampleRole( PlayerAgent * agent )
     return true;
 }
 
-void 
-SamplePlayer::TriangleStrategy( PlayerAgent * agent )
-{
-	double dist_thr = agent->world().ball().distFromSelf()*0.1;
-                if ( dist_thr < 1.0 ) dist_thr = 1.0;
-     double dash_power = ServerParam::MAX_DASH_POWER;
-                
-    double y1,y2,x1,x2;
-    if(agent->world().self().unum()==10 || agent->world().self().unum()==11){
+void
+SamplePlayer::LineFallBackStrategy(PlayerAgent * agent) {
+    PlayerAgent * closestAgent = NULL;
+    if (agent->world().self().unum() == ClosestPlayerToBall(agent)) {
         chaseBall(agent);
-    }else{
-        if(agent->world().self().unum()==9){
-            x1=-46;
-            y1 = (-1.5*x1)-63; 
-        Vector2D target_pos(-46,6);
-        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-        }else if(agent->world().self().unum()==8){
+        closestAgent = agent;
+    } else {
+        // = agent->world();
+        // = wm.teammatesFromBall().begin();
+        PlayerPtrCont::const_iterator t;
+        if (closestAgent != NULL) {
+            const WorldModel & wm = closestAgent->world();
+            t = wm.teammatesFromBall().begin();
+        }
+        double ballx = agent->world().ball().pos().x;
+        int danger = getDangerZone(ballx);
+        Vector2D target_pos(std::max(ballx - 4, (double) - 51), agent->world().self().pos().y);
+        double dist_thr = agent->world().ball().distFromSelf()*0.1;
+        if (dist_thr < 1.0) dist_thr = 1.0;
+        double dash_power = ServerParam::MAX_DASH_POWER;
+
+        if (danger == 0) {
+            if (closestAgent != NULL) {
+                int player = 0;
+                map<int, int> markPlayer;
+                while (player != 4) {
+                    markPlayer[(*t) -> unum()] = 1;
+                    t++;
+                    player++;
+                }
+
+                if (markPlayer[agent->world().self().unum()] == 1) {
+                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                        Body_TurnToBall().execute(agent);
+                    }
+                    else {
+                        Body_TurnToBall().execute(agent);
+                    }
+                }
+            } else {
+                if (agent->world().self().unum() == 10 || agent->world().self().unum() == 11 ||
+                        agent->world().self().unum() == 8 || agent->world().self().unum() == 7) {
+                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+                } else {
+                    Body_TurnToBall().execute(agent);
+                }
+            }
+        }
+        if (danger == 1) {
+            if (closestAgent != NULL) {
+                int player = 0;
+                map<int, int> markPlayer;
+                while (player != 7) {
+                    markPlayer[(*t) -> unum()] = 1;
+                    t++;
+                    player++;
+                }
+
+                if (markPlayer[agent->world().self().unum()] == 1) {
+                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                        Body_TurnToBall().execute(agent);
+                    }
+                    else {
+                        Body_TurnToBall().execute(agent);
+                    }
+                }
+            } else {
+                if (agent->world().self().unum() == 10 || agent->world().self().unum() == 11 ||
+                        agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
+                        agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
+                        agent->world().self().unum() == 6 || agent->world().self().unum() == 5
+                        ) {
+                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+                } else {
+                    Body_TurnToBall().execute(agent);
+                }
+            }
+        }
+        if (danger == 2) {
+
+            if (closestAgent != NULL) {
+                int player = 0;
+                map<int, int> markPlayer;
+                while (player != 8) {
+                    markPlayer[(*t) -> unum()] = 1;
+                    t++;
+                    player++;
+                }
+
+                if (markPlayer[agent->world().self().unum()] == 1) {
+                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+
+                    else {
+                        Body_TurnToBall().execute(agent);
+                    }
+                }
+            } else {
+                if (agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
+                        agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
+                        agent->world().self().unum() == 6 || agent->world().self().unum() == 5) {
+                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+                } else if (agent->world().self().unum() == 2 || agent->world().self().unum() == 3) {
+                    if (ballx - agent->world().self().pos().x < 0) {
+                        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                            Body_TurnToBall().execute(agent);
+                    } else {
+                        Body_TurnToBall().execute(agent);
+                    }
+                } else {
+                    Body_TurnToBall().execute(agent);
+                }
+            }
+        }
+        if (danger == 3) {
+            if (closestAgent != NULL) {
+                int player = 0;
+                map<int, int> markPlayer;
+                while (player != 8) {
+                    markPlayer[(*t) -> unum()] = 1;
+                    t++;
+                    player++;
+                }
+
+
+                if (markPlayer[agent->world().self().unum()] == 1) {
+                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+
+                    else {
+                        Body_TurnToBall().execute(agent);
+                    }
+                }
+            } else {
+                if (agent->world().self().unum() == 8 || agent->world().self().unum() == 7 ||
+                        agent->world().self().unum() == 9 || agent->world().self().unum() == 4 ||
+                        agent->world().self().unum() == 5 || agent->world().self().unum() == 6 ||
+                        agent->world().self().unum() == 3 || agent->world().self().unum() == 2) {
+                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                        Body_TurnToBall().execute(agent);
+                } else {
+                    Body_TurnToBall().execute(agent);
+                }
+            }
+        }
+
+        if (danger == 4) {
+
+            if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent))
+                Body_TurnToBall().execute(agent);
+
+        }
+        agent->setNeckAction(new Neck_TurnToBall());
+    }
+
+}
+
+void
+SamplePlayer::newTriangleStrategy(PlayerAgent * agent) {
+    if (agent->world().self().unum() < 10 && agent->world().self().unum() >= 4)
+        FillTriangle(agent);
+    else {
+        chaseBall(agent);
+    }
+}
+
+void
+SamplePlayer::FillTriangle(PlayerAgent * agent) {
+    const WorldModel & wm = agent->world();
+    double BallPosY = wm.ball().pos().y;
+    if (BallPosY < 0) {
+        int downEmptyIndex = CheckFirstEmptySlot(downSideTriangle);
+        if (downEmptyIndex < 3) {
+            movePlayer(getPointFromIndex(false, downEmptyIndex), agent);
+            downSideTriangle.at(downEmptyIndex) = true;
+        } else {
+            int firstEmpty = CheckFirstEmptySlot(upSideTriangle);
+            if (firstEmpty < 3) {
+                movePlayer(getPointFromIndex(true, firstEmpty), agent);
+                upSideTriangle.at(firstEmpty) = true;
+            }
+        }
+    } else {
+        int topEmptyIndex = CheckFirstEmptySlot(upSideTriangle);
+        if (topEmptyIndex < 3) {
+            movePlayer(getPointFromIndex(true, topEmptyIndex), agent);
+            downSideTriangle.at(topEmptyIndex) = true;
+        } else {
+            int firstEmpty = CheckFirstEmptySlot(downSideTriangle);
+            if (firstEmpty < 3) {
+                movePlayer(getPointFromIndex(false, firstEmpty), agent);
+                downSideTriangle.at(firstEmpty) = true;
+            }
+        }
+    }
+}
+
+void
+SamplePlayer::movePlayer(Vector2D point, PlayerAgent * agent) {
+    double dist_thr = agent->world().ball().distFromSelf()*0.1;
+    if (dist_thr < 1.0) dist_thr = 1.0;
+    double dash_power = ServerParam::MAX_DASH_POWER;
+    if (!Body_GoToPoint2010(point, dist_thr, dash_power).execute(agent)) {
+        Body_TurnToBall().execute(agent);
+    }
+    agent->setNeckAction(new Neck_TurnToBall());
+}
+
+Vector2D
+SamplePlayer::getPointFromIndex(bool isup, int index) {
+    Vector2D point;
+    if (isup) {
+        if (index == 0)
+            point.add(-46, 6);
+        else if (index == 1)
+            point.add(-44, 3);
+        else
+            point.add(42, 0);
+    } else {
+        if (index == 0)
+            point.add(-46, -6);
+        else if (index == 1)
+            point.add(-44, -3);
+        else
+            point.add(42, 0);
+    }
+    return point;
+}
+
+int
+SamplePlayer::CheckFirstEmptySlot(std::vector<bool> side) {
+    if (side.size() == 0)
+        return 0;
+    for (int i = 0; i < side.size(); i++)
+        if (!side.at(i)) {
+            return i;
+        }
+    return 3;
+}
+
+void
+SamplePlayer::TriangleStrategy(PlayerAgent * agent) {
+    double dist_thr = agent->world().ball().distFromSelf()*0.1;
+    if (dist_thr < 1.0) dist_thr = 1.0;
+    double dash_power = 0;
+    dash_power = ServerParam::MAX_DASH_POWER;
+
+    double y1, y2, x1, x2;
+    if (agent->world().self().unum() == 10) {
+        if (agent->world().ourPlayer(11) != NULL) {
+            if (!agent->world().ourPlayer(11)->distFromBall() < agent->world().self().distFromBall())
+                chaseBall(agent);
+            else {
+                Vector2D target_pos(-46, 0);
+                if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                    Body_TurnToBall().execute(agent);
+                }
+            }
+        }
+        agent->setNeckAction(new Neck_TurnToBall());
+    } else if (agent->world().self().unum() == 11) {
+        if (agent->world().ourPlayer(10) != NULL) {
+            if (!agent->world().ourPlayer(10)->distFromBall() < agent->world().self().distFromBall())
+                chaseBall(agent);
+            else {
+                Vector2D target_pos(-46, 0);
+                if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                    Body_TurnToBall().execute(agent);
+                }
+            }
+        }
+        agent->setNeckAction(new Neck_TurnToBall());
+    } else {
+        if (agent->world().self().unum() == 4) {
+            x1 = -46;
+            y1 = (-1.5 * x1) - 63;
+            Vector2D target_pos(-46, 6);
+            if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                Body_TurnToBall().execute(agent);
+            }
+        } else if (agent->world().self().unum() == 5) {
             x2 = -46;
-            y2 = (1.5*x2)+63;
-            Vector2D target_pos(-46,-6);
+            y2 = (1.5 * x2) + 63;
+            Vector2D target_pos(-46, -6);
             double* distance;
-            Vector2D newtarget_pos = agent->world().getOpponentNearestTo(target_pos,10,distance)->pos();
-            Vector2D test(newtarget_pos.x-1,newtarget_pos.y-1);
-            if(test.x<=-45 && test.y<9 && test.y>-9){
-        if (!Body_GoToPoint2010(test, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-            }else{
-            if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-        }
-        }else if(agent->world().self().unum()==7){
-            x1=-44;
-            y1 = (-1.5*x1)-63; 
-        Vector2D target_pos(-44,3);
-        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-        }else if(agent->world().self().unum()==6){
+            if (agent->world().getOpponentNearestTo(target_pos, 10, distance) != NULL) {
+                Vector2D newtarget_pos = agent->world().getOpponentNearestTo(target_pos, 10, distance)->pos();
+                Vector2D test(newtarget_pos.x - 1, newtarget_pos.y + 1);
+                if (test.x <= -45 && test.y < 7 && test.y>-7) {
+                    if (!Body_GoToPoint2010(test, dist_thr, dash_power).execute(agent)) {
+                        Body_TurnToBall().execute(agent);
+                    }
+                } else {
+                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                        Body_TurnToBall().execute(agent);
+                    }
+                }
+            } else {
+                if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                    Body_TurnToBall().execute(agent);
+                }
+            }
+        } else if (agent->world().self().unum() == 6) {
+            x1 = -44;
+            y1 = (-1.5 * x1) - 63;
+            Vector2D target_pos(-44, 3);
+            double* distance;
+            if (agent->world().getOpponentNearestTo(target_pos, 10, distance) != NULL) {
+                Vector2D newtarget_pos = agent->world().getOpponentNearestTo(target_pos, 10, distance)->pos();
+                Vector2D test(newtarget_pos.x - 1, newtarget_pos.y - 1);
+                if (test.x <= -45 && test.y < 7 && test.y>-7) {
+                    if (!Body_GoToPoint2010(test, dist_thr, dash_power).execute(agent)) {
+                        Body_TurnToBall().execute(agent);
+                    }
+                } else {
+                    if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                        Body_TurnToBall().execute(agent);
+                    }
+                }
+            } else {
+                if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                    Body_TurnToBall().execute(agent);
+                }
+            }
+        } else if (agent->world().self().unum() == 7) {
             x2 = -44;
-            y2 = (1.5*x2)+63;
-            Vector2D target_pos(-44,-3);
-        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-        }else if(agent->world().self().unum()==5){
-            x1=-42;
-            y1 = (-1.5*x1)-63; 
-        Vector2D target_pos(x1,y1);
-        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-        }else if(agent->world().self().unum()==4){
-            x2 = -42;
-            y2 = (1.5*x2)+63;
-            Vector2D target_pos(x2,y2);
-        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-        }else if(agent->world().self().unum()==3){
-            x2 = -42;
-            y2 = (1.5*x2)+63;
-            Vector2D target_pos(-49,-8);
-            std::cout<<"Agent 3 Role:"<<agent->world().self().playerType().id()<<"\n";
-        if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-        }else if(agent->world().self().unum()==2){
-            x2 = -42;
-            y2 = (1.5*x2)+63;
-            Vector2D target_pos(-49,8);
-            std::cout<<"Agent 2 Role:"<<agent->world().self().playerType().id()<<"\n";
+            y2 = (1.5 * x2) + 63;
+            Vector2D target_pos(-44, -3);
             double* distance;
-            Vector2D newtarget_pos = agent->world().getOpponentNearestTo(target_pos,10,distance)->pos();
-            Vector2D test(newtarget_pos.x-1,newtarget_pos.y+1);
-            if(test.x<=-45 && test.y<9 && test.y>-9){
-        if (!Body_GoToPoint2010(test, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-            }else{
-            if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)){
-                        	Body_TurnToBall().execute(agent);
-                		}
-        }
-        }
-        else{
+            Vector2D newtarget_pos = agent->world().getOpponentNearestTo(target_pos, 10, distance)->pos();
+            Vector2D test(newtarget_pos.x - 1, newtarget_pos.y + 1);
+            if (test.x <= -45 && test.y < 6 && test.y>-6) {
+                if (!Body_GoToPoint2010(test, dist_thr, dash_power).execute(agent)) {
+                    Body_TurnToBall().execute(agent);
+                }
+            } else {
+                if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                    Body_TurnToBall().execute(agent);
+                }
+            }
+        } else if (agent->world().self().unum() == 8) {
+            x1 = -42;
+            y1 = (-1.5 * x1) - 63;
+            Vector2D target_pos(x1, y1);
+            if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                Body_TurnToBall().execute(agent);
+            }
+        } else if (agent->world().self().unum() == 9) {
+            x2 = -42;
+            y2 = (1.5 * x2) + 63;
+            Vector2D target_pos(x2, y2);
+            if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                Body_TurnToBall().execute(agent);
+            }
+        } else if (agent->world().self().unum() == 3) {
+            x2 = -42;
+            y2 = (1.5 * x2) + 63;
+            Vector2D target_pos(-49, -8);
+             if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                    Body_TurnToBall().execute(agent);
+             }
+        } else if (agent->world().self().unum() == 2) {
+            x2 = -42;
+            y2 = (1.5 * x2) + 63;
+            Vector2D target_pos(-49, 8);
+            if (!Body_GoToPoint2010(target_pos, dist_thr, dash_power).execute(agent)) {
+                Body_TurnToBall().execute(agent);
+            }
+        } else {
             Body_TurnToBall().execute(agent);
         }
-                        agent->setNeckAction(new Neck_TurnToBall());
+        agent->setNeckAction(new Neck_TurnToBall());
     }
 }
 /*-------------------------------------------------------------------*/
@@ -1060,7 +1179,7 @@ SamplePlayer::clearBall( PlayerAgent * agent)
 {
     const WorldModel & wm = agent->world();
     Vector2D BallPos = wm.ball().pos();
-    if(BallPos.x<0){
+    if(BallPos.x<-15){
         std::cout << "Clearing The Ball" << "\n";
         Body_ClearBall2009().execute(agent);
     }else{

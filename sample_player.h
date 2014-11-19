@@ -217,7 +217,24 @@ public:
 
     void
     TriangleStrategy ( rcsc::PlayerAgent * agent );
-
+    
+    void
+    LineFallBackStrategy(rcsc::PlayerAgent *agent);
+    
+    void
+    movePlayer(rcsc::Vector2D point, rcsc::PlayerAgent * agent);
+    
+    rcsc::Vector2D
+    getPointFromIndex(bool isup,int index);
+    
+    int
+    CheckFirstEmptySlot(std::vector<bool> side);
+    
+    void
+    FillTriangle(rcsc::PlayerAgent * agent);
+    
+    void
+    newTriangleStrategy(rcsc::PlayerAgent * agent);
 
 private:
     double getDashPower( const rcsc::PlayerAgent * agent );
